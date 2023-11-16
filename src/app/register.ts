@@ -1,40 +1,40 @@
 export interface Register{
-  reg_names: Array<{name:string, value:number}>
+  	reg_names: Array<{name:string, value:number}>
 	memories: Array<boolean>
 
 	delta: Array<number>
 }
 export const init = ():Register =>{
-		const memories=Array<boolean>(4096).fill(false);
-		const reg_names=[...Array(32)].map((v,i)=>{
-			const value = i * 32;
-			if(i >= 0 && i < 5)
-		    switch(i){
-			  case 0: return {name:"zero", value:value};
-			  case 1: return {name:"ra", value:value};
-		    case 2: return {name:"sp", value:value};
-		    case 3: return {name:"gp", value:value};
-		    default: return {name:"tp", value:value};
-			  }
-			else if(i < 8)
-		    return {name:`t${i-5}`, value:value}
-		  else if(i < 10)
-		    return {name:`s${i-8}`, value:value}
-			else if(i < 18)
-		    return {name:`a${i-10}`, value:value}
-		  else if(i < 28)
-		    return {name:`s${i-16}`, value:value}
-			else
-		    return {name:`t${i-25}`, value:value}
+	const memories=Array<boolean>(4096).fill(false);
+	const reg_names=[...Array(32)].map((v,i)=>{
+		const value = i * 32;
+		if(i >= 0 && i < 5)
+			switch(i){
+			case 0: return {name:"zero", value:value};
+			case 1: return {name:"ra", value:value};
+			case 2: return {name:"sp", value:value};
+			case 3: return {name:"gp", value:value};
+			default: return {name:"tp", value:value};
+			}
+		else if(i < 8)
+			return {name:`t${i-5}`, value:value}
+		else if(i < 10)
+			return {name:`s${i-8}`, value:value}
+		else if(i < 18)
+			return {name:`a${i-10}`, value:value}
+		else if(i < 28)
+			return {name:`s${i-16}`, value:value}
+		else
+			return {name:`t${i-25}`, value:value}
 	})
 	return {reg_names:reg_names, memories:memories, delta:[]}
 }
 
 export const n2m = (register:Register, reg_name:string) =>{
-		const reg = register.reg_names.find(e=>e.name===reg_name);
-		if(!reg) return -1;
-		return reg.value;
-	}
+	const reg = register.reg_names.find(e=>e.name===reg_name);
+	if(!reg) return -1;
+	return reg.value;
+}
 /*
 00000000
 -100
@@ -111,3 +111,5 @@ export const toBinaly = (register:Register, address:number, length:number): stri
   }
   return binaly;
 }
+
+export const create = (register: Register):Register =>({reg_names:register.reg_names, memories: register.memories, delta:register.delta})

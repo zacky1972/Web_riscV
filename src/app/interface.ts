@@ -1,6 +1,12 @@
-type msgType = "cmd" | "wrong" | "res" | "err"
-
-interface Msg {
+interface Code {
     content: string;
-    type: msgType;
+    error: string;
+}
+interface Label{
+    name: string;
+    index: number;
+}
+interface ConpiledCode{
+    content: Array<string>;
+    labels: Array<Label>;
 }

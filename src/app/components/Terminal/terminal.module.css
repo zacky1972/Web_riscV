@@ -1,0 +1,27 @@
+.terminal{
+    display: flex;
+    flex-direction: column;
+    width:100%;
+    background-color: rgb(56, 59, 58);
+    border: 0.1rem solid;
+    padding:0 0.5rem 0 0.5rem;
+
+    white-space: pre-wrap;
+}
+.terminal textarea{
+    text-decoration: none;
+    border: none;
+    font-family:'Courier New', Courier, monospace;
+    font-size: medium;
+    resize:none
+}
+.terminal textarea:focus{
+    outline:0;
+}
+
+.msg_err{
+    color: red;
+}
+.msg_wrong{
+    color: gray;
+}
