@@ -8,6 +8,7 @@ export const Terminal = ({
 }:{
 	register:Register, setRegister:Dispatch<SetStateAction<Register>>
 })=>{
+	const [key_counter, setKC] = useState<number>(0);
 	//command
   const [command, setCommand] = useState<string>("");
   //コマンドラインのすべての入力を分類し格納
@@ -15,9 +16,8 @@ export const Terminal = ({
   //コンパイル後のコマンドを格納
   const [commands, setCommands] = useState<Array<string>>([]);
   const [labels, setLabels] = useState<Array<Label>>([]);
-  const [counter, setCounter] = useState<number>(0);
   const [pc, setPC] = useState<number>(0);
-  const [selectCounter, setSCounter] = useState<number>(0);
+  const [selecter, setSelecter] = useState<number>(0);
 
   const [tempCommand, setTCommand] = useState<string>("");
 
@@ -27,14 +27,15 @@ export const Terminal = ({
     console.log("----------entered--------------");
     resetDelta(register);
 
-    setCounter(c=>c+1);
-    setSCounter(counter);
+    setSelecter(0);
+		setTCommand("");
     
     const result = [compile(command, setCommands, labels, setLabels, register, commands)];
     if(result[0].error !== "none") result.push({content:result[0].error, error:"this"})
     setCommandLine(cl=>[...cl, ...result])
     setCommand("");
   }
+	//コマンドリスト、プログラムカウンターが更新された際コマンドを実行
   useEffect(()=>{
     console.log("commands:")
     console.log(commands)
@@ -45,8 +46,21 @@ export const Terminal = ({
 			setRegister(r=>create(r));
     }
   }, [commands, pc])
+	//セレクターが更新された際セレクターに合わせたコマンドをセット
+	useEffect(()=>{
+		console.log(`selector updated:${selecter}`)
+		const log = commandline.filter(c=>c.error!=="this");
+		if(log.length > 0){
+			if(selecter === 0)
+				setCommand(tempCommand)
+			else
+				setCommand(log[log.length - selecter].content);
+		} 
+	}, [selecter])
 	const handleKeyInputs = (e: React.KeyboardEvent) => {
     if(e.nativeEvent.isComposing) return;
+
+		setKC(kc=>kc+1);
 
     switch(e.key){
     case "Enter":
@@ -61,24 +75,22 @@ export const Terminal = ({
       e.preventDefault();
       break;
     case "ArrowUp":
-      if(command!=="" || selectCounter < 0) return;
-      if(selectCounter == counter) setTCommand(command)
-      setSCounter(c=>c-1);
-      setCommand(commandline[selectCounter].content);
-
+			var log = commandline.filter(c=>c.error!=="this");
+      if(selecter >= log.length) return;
+			if(selecter === 0){
+				setTCommand(command);
+			}
+      setSelecter(s=>{console.log("selector up");return s+1});
       //Debug>
-      console.log(`${selectCounter}:${command}`)
+      console.log(`${selecter}:${command}`)
+			break;
     case "ArrowDown":
-      if(command!=="" || selectCounter >= counter) return;
-      if(selectCounter == counter) {
-        setCommand(tempCommand);
-        return;
-      }
-      setSCounter(c=>c+1);
-      setCommand(commandline[selectCounter].content);
-
+			var log = commandline.filter(c=>c.error!=="this");
+      if(selecter <= 0) return;
+      setSelecter(s=>(s-1));
       //Debug>
-      console.log(`${selectCounter}:${command}`)
+      console.log(`${selecter}:${command}`)
+			break;
     case "Backspace":
       if(command[command.length-1]==="\n"){
         if(cmdLineRef.current?.rows)

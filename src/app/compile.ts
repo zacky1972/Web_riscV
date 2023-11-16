@@ -5,8 +5,7 @@ export const processCommand = (
 	cmd: Array<string>, pc: number, register: Register, 
 	setPC: React.Dispatch<React.SetStateAction<number>>
 ) => {
-	var response = true;
-	var target_address:number|undefined;
+	
 
   	// const errorMsg = (code: number, data:Array<string>) => {
 	// 	var msg:string;
@@ -28,10 +27,10 @@ export const processCommand = (
 	// 	}
 	// 	response = false;
   	// }
-
+	if(pc >= cmd.length) console.log("segmentetion foult!!")
 	console.log(pc + "↓")
 	console.log(cmd)
- 	const phrases = cmd[pc].split(" ").filter(e=>e);
+	const phrases = cmd[pc].split(" ").filter(e=>e);
 
   	switch(phrases[0]){
 	case "li":
@@ -55,7 +54,7 @@ export const processCommand = (
 			val = toNumber(register, Number(phrases[2]), 16, false);
 			break;
 		case "lw":
-			copyMemory(register, Number(phrases[2]), Number(phrases[1]), 32);
+			val = toNumber(register, Number(phrases[2]), 32, true);
 		}
 		setMemory(register, val, Number(phrases[1]), 32);
 		break;
@@ -162,11 +161,14 @@ export const compile = (
 		error = msg;
   	}
 
-	const isValidLength = (phrases: Array<string>, len: number, format:string) =>{
-		if(phrases.length == len) return true;
+	const isValidLength = (phrases: Array<string>, lens: Array<number>, format:string) =>{
+		for(var i = 0;i < lens.length;++i){
+			console.log(`${lens[i]}:${phrases.length}`)
+			if(phrases.length === lens[i]) return i+1;	
+		};
 
 		errorMsg(3, [format])
-		return false;
+		return 0;
 	}
 	const isValidRegister = (name:string) =>{
 		const reg = n2m(register, name);
@@ -190,7 +192,7 @@ export const compile = (
 		if(!(value=Number(arg))) {
 			const mini_ph = arg.split(/\(|\)/).filter(e=>e);
 			var address:number|undefined;
-			if(!isValidLength(mini_ph, 2, "immidiate or immidiate(register)")) return undefined;
+			if(!isValidLength(mini_ph, [2], "immidiate or immidiate(register)")) return undefined;
 			// console.log("pass0")//D
 			if((value=isValidNumber(mini_ph[0]))===undefined || (address=isValidRegister(mini_ph[1]))===undefined)return undefined;
 
@@ -213,7 +215,7 @@ export const compile = (
 
   		switch(phrases[0]){
 		case "li":
-    		if(!isValidLength(phrases, 3, "li 'register' 'immediate'")) break;
+    		if(!isValidLength(phrases, [3], "li 'register' 'immediate'")) break;
 			var address:number|undefined;
 			if((address=isValidRegister(phrases[1]))===undefined) break;
 				
@@ -222,7 +224,7 @@ export const compile = (
 
 			return `li ${address} ${value}`
 		case "lb":case "lbu": case "lh": case "lhu": case "lw":
-			if(!isValidLength(phrases, 3, `${phrases[0]} 'register' 'immidiate | immidiate(register)'`)) break;
+			if(!isValidLength(phrases, [3], `${phrases[0]} 'register' 'immidiate | immidiate(register)'`)) break;
 			var address_1:number|undefined;
 			if((address_1=isValidRegister(phrases[1]))===undefined) break;
 		
@@ -231,7 +233,7 @@ export const compile = (
 
 			return `${phrases[0]} ${address_1} ${address_2}`
 		case "addi": case "subi":
-			if(!isValidLength(phrases, 4, `${phrases[0]} 'register' 'register' 'immediate'`)) break;
+			if(!isValidLength(phrases, [4], `${phrases[0]} 'register' 'register' 'immediate'`)) break;
 			var address_dist:number|undefined;
 			if((address_dist=isValidRegister(phrases[1]))===undefined) break;
 
@@ -243,7 +245,7 @@ export const compile = (
 
 			return `${phrases[0]} ${address_dist} ${address_src} ${value_2}`
 		case "add": case "sub":
-			if(!isValidLength(phrases, 4, `${phrases[0]} 'register' 'register' 'register'`)) break;
+			if(!isValidLength(phrases, [4], `${phrases[0]} 'register' 'register' 'register'`)) break;
     		var address_dist:number|undefined;
     		if((address_dist=isValidRegister(phrases[1]))===undefined) break;
 
@@ -255,7 +257,7 @@ export const compile = (
 
 			return `${phrases[0]} ${address_dist} ${address_src_1} ${address_src_2}`
 		case "sb":case "sh":case "sw":
-			if(!isValidLength(phrases, 3, `${phrases[0]} 'register' 'immidiate | immidiate(register)'`)) break;
+			if(!isValidLength(phrases, [3], `${phrases[0]} 'register' 'immidiate | immidiate(register)'`)) break;
 			var address_1:number|undefined;
 			if((address_1=isValidRegister(phrases[1]))===undefined) break;
 
@@ -264,7 +266,7 @@ export const compile = (
 
 			return `${phrases[0]} ${address_1} ${address_2}`
 		case "mv":
-			if(!isValidLength(phrases, 3, `${phrases[0]} 'register' 'register'`)) break;
+			if(!isValidLength(phrases, [3], `${phrases[0]} 'register' 'register'`)) break;
 			var address_1:number|undefined;
 			if((address_1=isValidRegister(phrases[1]))===undefined) break;
 
@@ -273,22 +275,35 @@ export const compile = (
 
 			return `${phrases[0]} ${address_1} ${address_2}`
 		case "jal":
-			if(!isValidLength(phrases, 3, `${phrases[0]} 'register' 'label'`)) break;
-			var address_1:number|undefined;
-			if((address_1=isValidRegister(phrases[1]))===undefined) break;
+			var entered_format;
+			if(!(entered_format = isValidLength(phrases, [2,3], `${phrases[0]} ('register') 'label'`))) break;
+			var label_nth = 1;
+			if(entered_format == 2){
+				var address_1:number|undefined;
+				if((address_1=isValidRegister(phrases[1]))===undefined) break;
+				label_nth = 2;
+			}
+			
 			var label:number | undefined;
-			if((label=isValidLabel(phrases[2]))===undefined) break;
+			if((label=isValidLabel(phrases[label_nth]))===undefined) break;
 			
 			return `${phrases[0]} ${address_1} ${label}`
 		case "j":
-			if(!isValidLength(phrases, 2, `${phrases[0]} 'label'`)) break;
+			if(!isValidLength(phrases, [2], `${phrases[0]} 'label'`)) break;
 				
 			var label:number|undefined;
 			if((label=isValidLabel(phrases[1]))===undefined) break;
 
 			return `${phrases[0]} ${label}`
+		case "jr":
+			if(!isValidLength(phrases, [2], `${phrases[0]} 'register'`)) break;
+
+			var address_1:number|undefined;
+			if((address_1=isValidRegister(phrases[1]))===undefined) break;
+			return `jal ${0} ${toNumber(register, address_1, 32, false)}`;
+
 		case "beq":case "bne":case "bge":case "bgeu":case "bgt":case "bgtu":case "ble":case "bleu":case "blt":case "bltu":
-			if(!isValidLength(phrases, 4, `${phrases[0]} 'register' 'register | immidiate' 'label'`)) break;
+			if(!isValidLength(phrases, [4], `${phrases[0]} 'register' 'register | immidiate' 'label'`)) break;
 
 			var address_1:number|undefined;
 			if((address_1=isValidRegister(phrases[1]))===undefined) break;
