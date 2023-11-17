@@ -8,7 +8,7 @@ import { Memory } from './components/Memory';
 
 export default function Home() {
   const [register, setRegister] = useState<Register>(init())
-
+  const [test_elem, setTestElem] = useState<Array<string>>([])
   return (
     <main className={styles.main}>
       <Header></Header>

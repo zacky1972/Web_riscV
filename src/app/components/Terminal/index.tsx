@@ -8,20 +8,21 @@ export const Terminal = ({
 }:{
 	register:Register, setRegister:Dispatch<SetStateAction<Register>>
 })=>{
-	const [key_counter, setKC] = useState<number>(0);
 	//command
   const [command, setCommand] = useState<string>("");
   //コマンドラインのすべての入力を分類し格納
   const [commandline, setCommandLine] = useState<Array<Code>>([]);
+	const [beAddedRow, setBeAddedRow] = useState<boolean>(false);
   //コンパイル後のコマンドを格納
   const [commands, setCommands] = useState<Array<string>>([]);
   const [labels, setLabels] = useState<Array<Label>>([]);
   const [pc, setPC] = useState<number>(0);
+	//ログ遡り用の変数
   const [selecter, setSelecter] = useState<number>(0);
-
   const [tempCommand, setTCommand] = useState<string>("");
 
   const cmdLineRef = useRef<HTMLTextAreaElement>(null);
+	const terminalRef = useRef<HTMLDivElement>(null);
 
 	const handleEnterCommand = () =>{
     console.log("----------entered--------------");
@@ -31,8 +32,13 @@ export const Terminal = ({
 		setTCommand("");
     
     const result = [compile(command, setCommands, labels, setLabels, register, commands)];
-    if(result[0].error !== "none") result.push({content:result[0].error, error:"this"})
-    setCommandLine(cl=>[...cl, ...result])
+		if(result[0].error!=="empty"){
+			if(result[0].error!=="none")
+				result.push({content:result[0].error, error:"this"})
+
+			setCommandLine(cl=>[...cl, ...result])
+		}
+		console.log(result[0].error)
     setCommand("");
   }
 	//コマンドリスト、プログラムカウンターが更新された際コマンドを実行
@@ -46,6 +52,14 @@ export const Terminal = ({
 			setRegister(r=>create(r));
     }
   }, [commands, pc])
+	//行が追加されたらそれに合わせてスクロールする
+	useEffect(()=>{
+		if(!beAddedRow) return;
+
+		if(cmdLineRef.current) cmdLineRef.current.scrollIntoView();
+		setBeAddedRow(false);
+		console.log("added row")
+	}, [beAddedRow])
 	//セレクターが更新された際セレクターに合わせたコマンドをセット
 	useEffect(()=>{
 		console.log(`selector updated:${selecter}`)
@@ -60,8 +74,6 @@ export const Terminal = ({
 	const handleKeyInputs = (e: React.KeyboardEvent) => {
     if(e.nativeEvent.isComposing) return;
 
-		setKC(kc=>kc+1);
-
     switch(e.key){
     case "Enter":
       if(e.shiftKey){
@@ -71,6 +83,8 @@ export const Terminal = ({
       }
       else
         handleEnterCommand();
+
+			setBeAddedRow(true);
       console.log("enter");
       e.preventDefault();
       break;
@@ -103,7 +117,7 @@ export const Terminal = ({
     }
   }
   return(
-		<div className={styles.terminal} onClick={()=>cmdLineRef.current?.focus()}>
+		<div ref={terminalRef} className={styles.terminal} onClick={()=>cmdLineRef.current?.focus()}>
       {commandline.map((c, i)=><div key={i} className={
         c.error==="none"?styles.command:c.error==="this"?styles.msg_err:styles.msg_wrong
       }>{c.content}</div>)}

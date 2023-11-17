@@ -123,12 +123,33 @@ export const processCommand = (
 	// setPC(p=>p+1);
 }
 
+/*
+引数：
+	code		：入力されたコード（複数行も可）
+	setCommands	：処理したcodeを実行可能なcommandに格納するための関数
+	labels		：現在設定されているラベル群
+	setLabels	：新たにラベルを設定するための関数
+	register	：レジスターに設定されている値群
+	commands	：処理済みの実行可能なcommand群
+返り値：
+	codeが正しく実行可能な場合：
+		content	：code
+		error	：none
+	codeに誤りがあった場合：
+		content	：code
+		error	：何らかのエラーメッセージ
+	codeがからだった場合：
+		content	：""
+		error	：empty
+*/
 export const compile = (
 	code: string, setCommands: Dispatch<SetStateAction<Array<string>>>, 
 	labels: Array<Label>, setLabels: Dispatch<SetStateAction<Array<Label>>>, 
 	register: Register, commands: Array<string>
 ):Code=>{
-	const cmds = code.split("\n");
+	const cmds = code.split("\n").filter(c=>c!=="");
+	if(cmds.length===0) return {content:"", error:"empty"};
+
 	const temp_labels: Array<Label> = [...labels];
 	var error = "";
 	cmds.forEach((c,i)=>{

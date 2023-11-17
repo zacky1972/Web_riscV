@@ -1,14 +1,19 @@
 .terminal{
-    display: flex;
-    flex-direction: column;
+    /* 有効にするとtextareaが潰れてしまう
+    /* display: flex;
+    flex-direction: column; */
     width:100%;
+    height:30rem;
     background-color: rgb(56, 59, 58);
     border: 0.1rem solid;
     padding:0 0.5rem 0 0.5rem;
 
     white-space: pre-wrap;
+
+    overflow:scroll;
 }
 .terminal textarea{
+    overflow: visible;
     text-decoration: none;
     border: none;
     font-family:'Courier New', Courier, monospace;
