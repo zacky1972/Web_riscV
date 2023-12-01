@@ -2,8 +2,8 @@
     /* 有効にするとtextareaが潰れてしまう
     /* display: flex;
     flex-direction: column; */
-    width:100%;
-    height:30rem;
+    width:60vh;
+    height:32rem;
     background-color: rgb(56, 59, 58);
     border: 0.1rem solid;
     padding:0 0.5rem 0 0.5rem;

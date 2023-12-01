@@ -1,0 +1,51 @@
+.editer{
+    /* 有効にするとtextareaが潰れてしまう
+    /* display: flex;
+    flex-direction: column; */
+    width:60vh;
+    height:32rem;
+    background-color: rgb(56, 59, 58);
+    border: 0.1rem solid;
+
+    white-space: pre-wrap;
+
+    overflow:scroll;
+    font-family:'Courier New', Courier, monospace;
+    font-size: medium;
+}
+.line{
+    width: 100%;
+}
+.line input{
+    background-color: rgb(56, 59, 58);
+    border:none;
+    text-decoration: none;
+    width: 90%;
+    font-family:'Courier New', Courier, monospace;
+    font-size: medium;
+}
+.line input:focus{
+    outline:none;
+}
+.error{
+    color:red;
+}
+.buttons{
+    display: flex;
+}
+.button{
+    border:0.1rem solid;
+    width: 25%;
+    text-align: center;
+    transition: all 0.2s;
+}
+.button:hover{
+    letter-spacing: 0.1rem;
+    color:aqua;
+}
+.disable{
+    border:0.1rem solid;
+    width: 25%;
+    text-align: center;
+    color: gray;
+}

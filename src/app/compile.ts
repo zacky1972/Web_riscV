@@ -3,7 +3,8 @@ import { Register, copyMemory, n2m, setMemory, toNumber } from "./register";
 
 export const processCommand = (
 	cmd: Array<string>, pc: number, register: Register, 
-	setPC: React.Dispatch<React.SetStateAction<number>>
+	setPC: React.Dispatch<React.SetStateAction<number>>,
+	setOutputs: Dispatch<SetStateAction<string>>
 ) => {
 	
 
@@ -116,6 +117,30 @@ export const processCommand = (
 		})();
 		if(flag) setPC(Number(phrases[3]))
 		break;
+	case "ecall":
+		const mode = toNumber(register, n2m(register, "a7"), 32, false);
+		const fd = toNumber(register, n2m(register, "a0"), 32, false);
+		const address = toNumber(register, n2m(register, "a1"), 32, false);
+		const bytes = toNumber(register, n2m(register, "a2"), 32, false);
+		
+		switch(mode){
+		case 0:
+			break;
+		case 1:
+			var outs:string = "";
+			for(var i = 0;i < bytes;++i){
+				const v = String.fromCodePoint(toNumber(register, address + 32*i, 32, true));
+				console.log(v);
+				outs += v;
+			}
+			console.log("setoutput" + outs);
+			console.log(`address:${address}, bytes${bytes}`)
+			setOutputs(os=>os+outs)
+			break;
+		}
+		break;
+	case ".word":
+		break;
 	default:
 		console.log(cmd);
   	}
@@ -148,13 +173,16 @@ export const compile = (
 	register: Register, commands: Array<string>
 ):Code=>{
 	const cmds = code.split("\n").filter(c=>c!=="");
+	console.log(cmds);
 	if(cmds.length===0) return {content:"", error:"empty"};
 
 	const temp_labels: Array<Label> = [...labels];
 	var error = "";
 	cmds.forEach((c,i)=>{
-		if(c.match(/:$/))
+		if(c.match(/:$/)){
 			temp_labels.push({name: c.slice(0, c.length-1), index: i+commands.length})
+			console.log(`add label ${c.slice(0, c.length-1)}, ${i}, ${commands.length}`)
+		}
 	})
 	console.log(temp_labels);
 	
@@ -193,7 +221,7 @@ export const compile = (
 	}
 	const isValidRegister = (name:string) =>{
 		const reg = n2m(register, name);
-		console.log("passReg");//D
+		// console.log("passReg");//D
 		if(reg!==-1) return reg;
 
     	errorMsg(2, [name])
@@ -202,7 +230,7 @@ export const compile = (
 	}
 	const isValidNumber = (n:string) =>{
 		const value = Number(n)
-		console.log("passNumber"+n)//D
+		// console.log("passNumber"+n)//D
 		if(value || value===0) return value;
 
     	errorMsg(1, [n])
@@ -334,6 +362,7 @@ export const compile = (
 			if((label=isValidLabel(phrases[3]))===undefined) break;
 
 			return `${phrases[0]} ${address_1} ${address_2} ${label}`
+		case "ecall": return "ecall";
 		default:
 			if(phrases[0].match(/:$/)){
 				console.log(`labeled:${phrases[0]}`)

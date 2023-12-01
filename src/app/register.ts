@@ -1,6 +1,8 @@
 export interface Register{
   	reg_names: Array<{name:string, value:number}>
+
 	memories: Array<boolean>
+	used_memories: Array<{start:number, length:number}>
 
 	delta: Array<number>
 }
@@ -27,7 +29,7 @@ export const init = ():Register =>{
 		else
 			return {name:`t${i-25}`, value:value}
 	})
-	return {reg_names:reg_names, memories:memories, delta:[]}
+	return {reg_names:reg_names, memories:memories, used_memories:[], delta:[]}
 }
 
 export const n2m = (register:Register, reg_name:string) =>{
@@ -80,6 +82,12 @@ export const copyMemory = (register: Register, src: number, dist: number, length
 		register.memories[dist+i] = register.memories[src+i];
 	}
 }
+export const malloc = (register: Register, address: number, bytes: number) =>{
+	var current_address = 1024;
+	for(;current_address < 4096;++current_address){
+		
+	}
+}
 
 export const toHex = (register:Register, address:number, length:number): string =>{
 	var hex = "";
@@ -112,4 +120,9 @@ export const toBinaly = (register:Register, address:number, length:number): stri
   return binaly;
 }
 
-export const create = (register: Register):Register =>({reg_names:register.reg_names, memories: register.memories, delta:register.delta})
+export const create = (register: Register):Register =>({
+	reg_names:register.reg_names, 
+	memories: register.memories, 
+	used_memories:register.used_memories, 
+	delta:register.delta
+})

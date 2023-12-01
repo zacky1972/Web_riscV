@@ -4,9 +4,9 @@ import { Register, create, resetDelta } from "@/app/register";
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 
 export const Terminal = ({
-	register, setRegister
+	register, setRegister, setOutputs
 }:{
-	register:Register, setRegister:Dispatch<SetStateAction<Register>>
+	register:Register, setRegister:Dispatch<SetStateAction<Register>>, setOutputs: Dispatch<SetStateAction<string>>
 })=>{
 	//command
   const [command, setCommand] = useState<string>("");
@@ -47,7 +47,7 @@ export const Terminal = ({
     console.log(commands)
     if(pc < commands.length){
       console.log("process" + pc +":"+ commands[pc]);
-      processCommand(commands, pc, register, setPC);
+      processCommand(commands, pc, register, setPC, setOutputs);
       setPC(c=>c+1);
 			setRegister(r=>create(r));
     }
