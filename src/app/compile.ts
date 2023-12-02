@@ -5,7 +5,7 @@ export const processCommand = (
 	cmd: Array<string>, pc: number, register: Register, 
 	setPC: React.Dispatch<React.SetStateAction<number>>,
 	setOutputs: Dispatch<SetStateAction<string>>
-) => {
+):string => {
 	
 
   	// const errorMsg = (code: number, data:Array<string>) => {
@@ -122,11 +122,20 @@ export const processCommand = (
 		const fd = toNumber(register, n2m(register, "a0"), 32, false);
 		const address = toNumber(register, n2m(register, "a1"), 32, false);
 		const bytes = toNumber(register, n2m(register, "a2"), 32, false);
-		
+		console.log(`ecall ${mode} ${address}`)
 		switch(mode){
-		case 0:
+		case 0://out int
+			var outs:string = "";
+			for(var i = 0;i < bytes;++i){
+				const v = toNumber(register, address + 32*i, 32, true).toString();
+				console.log(v);
+				outs += v;
+			}
+			console.log("setoutput" + outs);
+			console.log(`address:${address}, bytes${bytes}`)
+			setOutputs(os=>os+outs)
 			break;
-		case 1:
+		case 1://out char
 			var outs:string = "";
 			for(var i = 0;i < bytes;++i){
 				const v = String.fromCodePoint(toNumber(register, address + 32*i, 32, true));
@@ -137,6 +146,12 @@ export const processCommand = (
 			console.log(`address:${address}, bytes${bytes}`)
 			setOutputs(os=>os+outs)
 			break;
+		case 2://in int
+			console.log("input int pass")
+			return `input_int ${address} ${bytes}`
+		case 7:
+			setPC(-1);
+			break;
 		}
 		break;
 	case ".word":
@@ -145,6 +160,7 @@ export const processCommand = (
 		console.log(cmd);
   	}
 	console.log("pc is " + pc)
+	return "none";
 	// setPC(p=>p+1);
 }
 
@@ -259,8 +275,9 @@ export const compile = (
 	}
 	const compiled:Array<string> = cmds.map(c=>{
 		if(error !== "") return "error";
-
-		const phrases = c.split(" ").filter(e=>e);
+		console.log("phrases")
+		console.log(c)
+		const phrases = c.split(/,| /).filter(e=>e);
 
   		switch(phrases[0]){
 		case "li":
