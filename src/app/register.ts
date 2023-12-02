@@ -45,6 +45,7 @@ export const n2m = (register:Register, reg_name:string) =>{
 */
 export const resetDelta = (register:Register) =>{register.delta = []}
 export const setMemory = (register:Register, value:number, address:number, length:number) =>{
+	if(address<32) return;
 	var counter = length;
 	var binaly = "";
 

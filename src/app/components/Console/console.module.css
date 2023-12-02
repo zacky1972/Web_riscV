@@ -5,3 +5,11 @@
     overflow: scroll;
     white-space:pre-wrap;
 }
+.console input{
+    border:none;
+    background-color: black;
+    color: white;
+}
+.console input:focus{
+    outline:none;
+}
