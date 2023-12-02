@@ -4,9 +4,10 @@ import { Register, create, resetDelta } from "@/app/register";
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 
 export const Terminal = ({
-	register, setRegister, setOutputs
+	register, setRegister, setOutputs, stopProc, setStopProc
 }:{
-	register:Register, setRegister:Dispatch<SetStateAction<Register>>, setOutputs: Dispatch<SetStateAction<string>>
+	register:Register, setRegister:Dispatch<SetStateAction<Register>>, setOutputs: Dispatch<SetStateAction<string>>,
+	stopProc:string, setStopProc:Dispatch<SetStateAction<string>>
 })=>{
 	//command
   const [command, setCommand] = useState<string>("");
@@ -20,7 +21,7 @@ export const Terminal = ({
 	//ログ遡り用の変数
   const [selecter, setSelecter] = useState<number>(0);
   const [tempCommand, setTCommand] = useState<string>("");
-
+	const [isFirstLoad, setIsFL] = useState<boolean>(true);
   const cmdLineRef = useRef<HTMLTextAreaElement>(null);
 	const terminalRef = useRef<HTMLDivElement>(null);
 
@@ -45,13 +46,30 @@ export const Terminal = ({
   useEffect(()=>{
     console.log("commands:")
     console.log(commands)
+		console.log(pc)
+		if(pc < 0) {
+			setPC(commands.length)
+		
+			return;
+		};
     if(pc < commands.length){
       console.log("process" + pc +":"+ commands[pc]);
-      processCommand(commands, pc, register, setPC, setOutputs);
+      const res = processCommand(commands, pc, register, setPC, setOutputs);
+			if(res!=="none") {
+				setStopProc(res)
+				return;
+			};
       setPC(c=>c+1);
 			setRegister(r=>create(r));
     }
   }, [commands, pc])
+	useEffect(()=>{
+		if(isFirstLoad){
+			setIsFL(false);
+			return;
+		}
+		if(stopProc==="none") setPC(c=>c+1);
+	},[stopProc])
 	//行が追加されたらそれに合わせてスクロールする
 	useEffect(()=>{
 		if(!beAddedRow) return;
@@ -121,7 +139,7 @@ export const Terminal = ({
       {commandline.map((c, i)=><div key={i} className={
         c.error==="none"?styles.command:c.error==="this"?styles.msg_err:styles.msg_wrong
       }>{c.content}</div>)}
-      <textarea ref={cmdLineRef} value={command} onKeyDown={handleKeyInputs} onChange={e=>{setCommand(e.target.value)}} rows={1}/>
+      <textarea ref={cmdLineRef} value={command} onKeyDown={handleKeyInputs} onChange={e=>{setCommand(e.target.value)}} rows={1} disabled={stopProc!=="none"}/>
     </div>
   )
 }

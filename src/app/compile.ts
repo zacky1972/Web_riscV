@@ -149,6 +149,9 @@ export const processCommand = (
 		case 2://in int
 			console.log("input int pass")
 			return `input_int ${address} ${bytes}`
+		case 3:
+			console.log("input char pass")
+			return `input_char ${address} ${bytes}`
 		case 7:
 			setPC(-1);
 			break;

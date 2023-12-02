@@ -4,9 +4,10 @@ import styles from "@/app/components/Editer/editer.module.css"
 import { compile, processCommand } from "@/app/compile"
 
 export const Editer = ({
-	register, setRegister, setOutputs
+	register, setRegister, setOutputs, stopProc, setStopProc
 }:{
-	register: Register, setRegister: Dispatch<SetStateAction<Register>>, setOutputs: Dispatch<SetStateAction<string>>
+	register: Register, setRegister: Dispatch<SetStateAction<Register>>, setOutputs: Dispatch<SetStateAction<string>>,
+	stopProc:string, setStopProc:Dispatch<SetStateAction<string>>
 })=>{
 	const [commands, setCommands] = useState<Array<string>>([""]);
 	const [compiled, setCompiled] = useState<Array<string>>([]);
@@ -19,6 +20,7 @@ export const Editer = ({
 	const [i_compile, setI_Compile] = useState<number>(-1);
 	const [isProcessing, setIsProc] = useState<boolean>(false);
 	const [isCompiled, setIsCompiled] = useState<boolean>(false);
+	const [isFirstLoad, setIsFL] = useState<boolean>(true);
 
 	const handleEnterCommand = ()=>{
 		setCompiled([]);
@@ -81,7 +83,12 @@ export const Editer = ({
 			setIsProc(false);
 			return
 		};
-		processCommand(compiled, pc, register, setPC, setOutputs);
+		const res = processCommand(compiled, pc, register, setPC, setOutputs);
+
+		if(res!=="none") {
+			setStopProc(res)
+			return;
+		};
 		setRegister(r=>create(r));
 		console.log(`${isProcessing}:aaa`)
 
@@ -89,6 +96,13 @@ export const Editer = ({
 
 		setPC(p=>p+1);
 	}, [pc])
+	useEffect(()=>{
+		if(isFirstLoad){
+			setIsFL(false);
+			return;
+		}
+		if(stopProc==="none") setPC(c=>c+1);
+	},[stopProc])
 
 	const handleKeyInputs = (e: React.KeyboardEvent, index: number) => {
     if(e.nativeEvent.isComposing) return;

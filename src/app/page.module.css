@@ -12,3 +12,12 @@
   padding: 1rem 10% 0 10%;
   font-family:"Courier New", Consolas, monospace;
 }
+
+.switch_btn{
+  transition: all 0.2s;
+}
+.switch_btn:hover{
+  color:aqua;
+  cursor: pointer;
+  letter-spacing: 0.1rem;
+}
