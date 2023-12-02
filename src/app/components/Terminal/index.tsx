@@ -68,7 +68,10 @@ export const Terminal = ({
 			setIsFL(false);
 			return;
 		}
-		if(stopProc==="none") setPC(c=>c+1);
+		if(stopProc==="none") {
+      setPC(c=>c+1);
+      cmdLineRef.current?.focus();
+    }
 	},[stopProc])
 	//行が追加されたらそれに合わせてスクロールする
 	useEffect(()=>{
