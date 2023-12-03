@@ -47,9 +47,10 @@
     - zoroへの書き込み禁止
 
 # Install
-    ```bash
-    cd /path/to/Web_riscV
-    npm install -g yarn
-    yarn install
-    yarn run
-    ``` 
+ ```bash
+ git clone https://github.com/MitsukuniH/Web_riscV.git
+ cd /path/to/Web_riscV
+ npm install -g yarn
+ yarn install
+ yarn run
+ ``` 
