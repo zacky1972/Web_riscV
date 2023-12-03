@@ -1,4 +1,4 @@
-#実装した機能
+# Features 
 - 機能
     - インタプリタモード
         - ログ遡り(ArrowUp | ArrowDown)
@@ -46,4 +46,11 @@
         - 空入力
     - zoroへの書き込み禁止
 
-
+# Install
+ ```bash
+ git clone https://github.com/MitsukuniH/Web_riscV.git
+ cd /path/to/Web_riscV
+ npm install -g yarn
+ yarn install
+ yarn run
+ ``` 
