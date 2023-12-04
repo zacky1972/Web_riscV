@@ -47,10 +47,43 @@
     - zoroへの書き込み禁止
 
 # Install
- ```bash
- git clone https://github.com/MitsukuniH/Web_riscV.git
- cd /path/to/Web_riscV
- npm install -g yarn
- yarn install
- yarn run
- ``` 
+
+```bash
+git clone https://github.com/MitsukuniH/Web_riscV.git
+cd Web_riscV
+npm install -g yarn
+yarn install
+yarn run
+``` 
+
+```
+info Commands available from binary scripts: acorn, eslint, js-yaml, json5, loose-envify, nanoid, next, node-which, resolve, rimraf, semver, tsc, tsserver
+info Project commands
+   - build
+      next build
+   - dev
+      next dev
+   - lint
+      next lint
+   - start
+      next start
+question Which command would you like to run?: build
+```
+
+```bash
+yarn run
+``` 
+
+```
+info Commands available from binary scripts: acorn, eslint, js-yaml, json5, loose-envify, nanoid, next, node-which, resolve, rimraf, semver, tsc, tsserver
+info Project commands
+   - build
+      next build
+   - dev
+      next dev
+   - lint
+      next lint
+   - start
+      next start
+question Which command would you like to run?: start
+```
